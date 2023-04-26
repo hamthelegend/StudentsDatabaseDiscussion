@@ -45,8 +45,11 @@ namespace StudentsDatabaseDiscussion.Controllers
             {
                 _STUDENTS.STATUS = true;
 
-                entities.TBL_STUDENTS.Add(_STUDENTS);
-                
+                if (!entities.TBL_STUDENTS.Any(dbStudent => dbStudent.STUDENT_NUMBER == _STUDENTS.STUDENT_NUMBER))
+                {
+                    entities.TBL_STUDENTS.Add(_STUDENTS);
+                }
+
                 if(entities.SaveChanges() >= 1)
                 {
                     //SUCCESS
@@ -69,7 +72,7 @@ namespace StudentsDatabaseDiscussion.Controllers
         {
             using (StudentDBEntities entities = new StudentDBEntities())
             {
-                var student = entities.TBL_STUDENTS.Where(x => x.ID == studentId).FirstOrDefault();
+                var student = entities.TBL_STUDENTS.FirstOrDefault(x => x.ID == studentId);
 
                 if (student == null) {
                     return Json(new { msg = "Student not found." });
@@ -94,20 +97,23 @@ namespace StudentsDatabaseDiscussion.Controllers
         {
             using (StudentDBEntities entities = new StudentDBEntities())
             {
-                var student = entities.TBL_STUDENTS.Where(x => x.ID == studentId).FirstOrDefault();
+                var student = entities.TBL_STUDENTS.FirstOrDefault(x => x.ID == studentId);
 
                 if (student == null) {
                     return Json(new { msg = "Student not found" });
                 }
 
-                student.STUDENT_NAME = studentName;
-                student.STUDENT_ADDRESS = studentAddress;
-                student.STUDENT_NUMBER = studentIdNumber;
-                student.STATUS = isActive;
-                student.STUDENT_YEAR_LEVEL= studentYearLevel;
-                student.STUDENT_CONTACT_NUMBER = studentContactNumber;
+                if (!entities.TBL_STUDENTS.Any(dbStudent => dbStudent.STUDENT_NUMBER == studentIdNumber && dbStudent.ID != studentId))
+                {
+                    student.STUDENT_NAME = studentName;
+                    student.STUDENT_ADDRESS = studentAddress;
+                    student.STUDENT_NUMBER = studentIdNumber;
+                    student.STATUS = isActive;
+                    student.STUDENT_YEAR_LEVEL = studentYearLevel;
+                    student.STUDENT_CONTACT_NUMBER = studentContactNumber;
+                }
 
-                
+
                 if(entities.SaveChanges() >= 1)
                 {
                     return Json(new { msg = "Modified student details" });
